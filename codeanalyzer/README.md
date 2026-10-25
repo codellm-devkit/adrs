@@ -5,7 +5,16 @@ Architecture Decision Records for the **codeanalyzer** component.
 Naming: `NNNN-short-title.md` (numbering restarts within this component).
 Copy `../template.md` as a starting point.
 
+Decisions that concern one backend live in a subfolder named after that backend's
+repository, numbered within the subfolder, e.g. `codeanalyzer-python/0001-….md`.
+Diagrams and other assets go under `assets/`, named after the ADR they belong to.
+
 ## Index
 
 | # | Title | Status |
 |---|-------|--------|
+| [0001](0001-shared-core-with-thin-language-backends.md) | A shared Rust core with thin language backends | proposed |
+| [0002](0002-facts-ir.md) | The facts IR between language backends and the core | proposed (draft) |
+| [0003](0003-external-library-model.md) | External Library Model (ELM) | proposed (draft) |
+| [codeanalyzer-python/0001](codeanalyzer-python/0001-resolver-ladder-syntactic-before-inference.md) | Resolve syntactically first, infer with Jedi only for the leftovers | proposed (draft) |
+| [codeanalyzer-java/0001](codeanalyzer-java/0001-no-build-analysis-with-supplied-bytecode.md) | Analyze Java without a target build and accept supplied bytecode | proposed (draft) |
