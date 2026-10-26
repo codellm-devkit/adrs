@@ -5,7 +5,7 @@ decision-makers: [Rahul Krishna]
 consulted: []
 informed: []
 scope: Java analysis without a target build, supplied bytecode, and missing library models
-related: [../0001-shared-core-with-thin-language-backends.md, ../0002-facts-ir.md]
+related: [../20-shared-core-with-thin-language-backends.md, ../21-facts-ir.md]
 ---
 
 # 0001: Analyze Java without a target build and accept supplied bytecode
@@ -34,7 +34,7 @@ For project analysis, `CodeAnalyzer.run` calls `downloadLibraryDependencies` bef
 
 The scope builder scans application `.class` files under the project directory. It adds collected dependency JARs and reads platform classes from `$JAVA_HOME/jmods`. It rejects an empty set of application classes. It has no CLI input for separate application artifacts or a supplied classpath. See [ScopeUtils](https://github.com/codellm-devkit/codeanalyzer-java/blob/56b044fc5c86159226d7c07e755ef32356d82041/src/main/java/com/ibm/cldk/utils/ScopeUtils.java).
 
-The Java backend currently constructs graphs itself. Under the proposed shared architecture, it remains a Java fact generator. The Rust core builds and emits the application graphs. This draft preserves that boundary from [the shared-core ADR](../0001-shared-core-with-thin-language-backends.md).
+The Java backend currently constructs graphs itself. Under the proposed shared architecture, it remains a Java fact generator. The Rust core builds and emits the application graphs. This draft preserves that boundary from [the shared-core ADR](../20-shared-core-with-thin-language-backends.md).
 
 ### 1.2 WALA already has fallback hierarchy modes
 
@@ -112,7 +112,7 @@ An unresolved target remains unresolved unless evidence supports an external ref
 
 Diagnostics identify missing types, affected application classes, exclusions, approximation policies, and source-to-bytecode mismatches. A run report includes supplied, retained, and excluded application class counts. Machine-readable model details beyond existing diagnostics need an agreed schema.
 
-The [facts IR draft](../0002-facts-ir.md) defines a closed `call.prov` vocabulary. It has no `phantom`, `assumed`, or `averroes` value. This ADR does not introduce those values implicitly. If diagnostics cannot provide sufficient attribution, per-fact model provenance requires an explicit IR decision.
+The [facts IR draft](../21-facts-ir.md) defines a closed `call.prov` vocabulary. It has no `phantom`, `assumed`, or `averroes` value. This ADR does not introduce those values implicitly. If diagnostics cannot provide sufficient attribution, per-fact model provenance requires an explicit IR decision.
 
 ### 2.5 Explicit build permission
 

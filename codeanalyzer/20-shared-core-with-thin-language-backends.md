@@ -7,7 +7,7 @@ informed: [codellm-devkit contributors]
 scope: every codeanalyzer-* backend, codeanalyzer-schema, python-sdk, typescript-sdk, the codeanalyzer repository
 ---
 
-# 0001: A shared Rust core with thin language backends
+# 20: A shared Rust core with thin language backends
 
 ## 1. Summary
 
@@ -18,7 +18,7 @@ This ADR splits the work. A **backend** keeps the language-specific half. It par
 Canonical schema v2 and the CLI contract do not change. Backends keep their names, PyPI packages, `canpy`, `canjv`, `cants`, and `cango` commands, and current major versions. Their output stays the same, byte for byte, on every existing field. Section 8 adds one optional field.
 
 
-![Backends emit facts to the core; the SDKs and codeanalyzer-cli consume the core](assets/0001-architecture.webp)
+![Backends emit facts to the core; the SDKs and codeanalyzer-cli consume the core](assets/20-architecture.webp)
 
 Editable source: <https://canvs.io/app?gdrive=1ZE3opKcElNuGB4rHknU1qFdJ_9LLjmcK>
 
@@ -128,11 +128,11 @@ A tier knows nothing about the tier above it. A backend cannot tell whether `can
 
 ### 5.2 Two contracts, both machine-checked, both owned here
 
-**The facts IR** is the backend-to-core contract. `0002-facts-ir.md` specifies it. The IR is flat typed records, one record type per kind, with no nesting, no levels, no projections, and no `can://`. A record references a declaration by a structured local key, `{file, path, sig}`. It references a statement by its callable and a local key. Spans are byte offsets. The core derives lines and columns. A backend declares the IR version it speaks in the stream header. The core refuses a mismatch with a named error. One schema file enforces the IR at both ends. Each backend's writer and the core's reader are generated from that file. The writer rejects a malformed record before it serializes the record. The core validates every record again on read. It also runs the ordering, reference, and invariant checks that no type system can state (ADR 0002 §4.14).
+**The facts IR** is the backend-to-core contract. `21-facts-ir.md` specifies it. The IR is flat typed records, one record type per kind, with no nesting, no levels, no projections, and no `can://`. A record references a declaration by a structured local key, `{file, path, sig}`. It references a statement by its callable and a local key. Spans are byte offsets. The core derives lines and columns. A backend declares the IR version it speaks in the stream header. The core refuses a mismatch with a named error. One schema file enforces the IR at both ends. Each backend's writer and the core's reader are generated from that file. The writer rejects a malformed record before it serializes the record. The core validates every record again on read. It also runs the ordering, reference, and invariant checks that no type system can state (ADR 21 §4.14).
 
 This ADR does not list the record kinds. Step 0 of the migration derives them, once. The derivation lists every field the three v2 backends emit today in `py_schema.py`, `schema.ts`, and the `schema/J*` classes. It takes the union. It then defines the smallest set of flat record kinds that carries the union. The result is the IR schema in `codeanalyzer/schema/facts/`, which grows additively under the IR version integer. The stream below illustrates the shape. It does not illustrate the kind list.
 
-This stream is illustrative. `canal facts dump` renders it as JSON. The wire format is MessagePack (ADR 0002 §3.1). Spans are byte offsets only (ADR 0002 §3.5):
+This stream is illustrative. `canal facts dump` renders it as JSON. The wire format is MessagePack (ADR 21 §3.1). Spans are byte offsets only (ADR 21 §3.5):
 
 ```jsonl
 {"t":"file","path":"src/util.go","sha256":"…","role":"source","text":"package util\n…"}
@@ -209,7 +209,7 @@ A **module** is a build unit that the ecosystem declares. Examples are a Maven o
 
 The output is one application with per-language, per-module nodes, whether or not the languages are related. A monorepo of a TypeScript frontend and a Python service looks the same to the engine as a monorepo of three unrelated tools. Cross-language edges, for related languages, belong to the roadmap's cross-language initiative. They are out of scope here. This ADR only guarantees that ids and the graph are ready for them. Groupings finer than the build unit, such as an Odoo addon or a Django app, are a consumer-side filter on paths. They are not a schema concept.
 
-A run uses one engine process and one backend process per language present in the input. The engine spawns the backend with `--facts -i <root> -a <level> --cache-dir <dir>`. It reads the MessagePack facts stream from the backend's stdout (ADR 0002). It reads diagnostics as records in that stream, and it reads anything else from stderr. It treats the exit code per the existing CLI contract. The engine finds a backend in this order: the `CAN_BACKEND_<LANG>` environment variable, `can-backend-<lang>` on `PATH`, the pip shim's `command()`. A language that the engine detects but that has no installed backend produces a diagnostic that names the package to install. Under `--strict`, it also produces a non-zero exit. Only a backend written in Rust could link in-process. Today none is.
+A run uses one engine process and one backend process per language present in the input. The engine spawns the backend with `--facts -i <root> -a <level> --cache-dir <dir>`. It reads the MessagePack facts stream from the backend's stdout (ADR 21). It reads diagnostics as records in that stream, and it reads anything else from stderr. It treats the exit code per the existing CLI contract. The engine finds a backend in this order: the `CAN_BACKEND_<LANG>` environment variable, `can-backend-<lang>` on `PATH`, the pip shim's `command()`. A language that the engine detects but that has no installed backend produces a diagnostic that names the package to install. Under `--strict`, it also produces a non-zero exit. Only a backend written in Rust could link in-process. Today none is.
 
 The backends' runtimes stay as they are: a JVM for Java, Bun for TypeScript, CPython for Python and clang, and the `go` toolchain for Go. The toolchain requirements that users have today also stay. Java at `-a 2` and above needs a JDK plus Maven or Gradle. TypeScript materialization needs `npm`. Go needs `go`. The core is one static binary with no requirements. The improvement is that the check runs once. `canal doctor` reports, per installed backend, what is present and which levels the backend can reach. A backend declares its reachable `max_level`, so the core never silently runs less than asked.
 
@@ -246,7 +246,7 @@ On every pull request, the `codeanalyzer` repository runs schema validation, mon
 This section is the project-wide standard the ADR title refers to. It binds the core and every backend, each in its own language.
 
 - **The pass model is the only way analysis runs** (section 5.4). The registry is constructor-injected and immutable. It is never a package-level list filled at import time. No one scaffolds a registry with zero passes "for later."
-- **Facts records are generated, never hand-written, and checked twice.** The IR schema in the `codeanalyzer` repository is the source. Codegen produces the Python dataclasses, TypeScript types, Java records, and Go structs that each backend's facts writer uses. It also produces the Rust structs that the core deserializes into. A backend cannot misspell a field, and the core does not trust that it did not. The core validates every record on read. It then checks ordering, resolvable references, and semantic invariants (ADR 0002 §4.14). Downstream, the SDK's Pydantic and Zod models are generated from canonical v2. `extra="ignore"` goes away, so drift fails a test again.
+- **Facts records are generated, never hand-written, and checked twice.** The IR schema in the `codeanalyzer` repository is the source. Codegen produces the Python dataclasses, TypeScript types, Java records, and Go structs that each backend's facts writer uses. It also produces the Rust structs that the core deserializes into. A backend cannot misspell a field, and the core does not trust that it did not. The core validates every record on read. It then checks ordering, resolvable references, and semantic invariants (ADR 21 §4.14). Downstream, the SDK's Pydantic and Zod models are generated from canonical v2. `extra="ignore"` goes away, so drift fails a test again.
 - **Graph representation in the core.** The core uses arena allocation with integer handles, interned strings, and edges as flat vectors. The graph is immutable after a pass returns. No single tree serves as the working set, the cache, and the output.
 - **Determinism is a build rule, not a test.** Phase results are keyed immutable deltas applied in sorted order. Every collection is sorted at the boundary. No emitted field depends on the machine: no absolute paths, no mtimes, no interpreter version. Output is byte-identical across `-j`, across runs, and across hosts.
 - **Emission.** One pure projection from the graph to rows feeds the JSON writer, the Cypher writer, and the Bolt writer. All three stream. The core validates every document against the schema before it closes the file. The projector reads the Neo4j catalog as its allowlist. It does not read a parallel hand-maintained list.
@@ -345,7 +345,7 @@ Gates check compliance, not review alone:
 - Step 0 of §9: the core re-emits the recorded Odoo and commons-lang `analysis.json` files byte-identical before any backend changes.
 - Each migration step: the backend's facts, run through a pinned core, reproduce its previous output byte-identical on its fixture corpus. The reviewed allowlist in §8 is the only exception.
 - Every pull request in the `codeanalyzer` repository: schema validation, monotonicity, projection parity, no dangling endpoints, and `-j` determinism. The real-world corpus run, with memory and wall-clock budgets, also applies (§6.6).
-- Every pull request in a backend: facts validate against the IR schema and the goldens match (§6.6, ADR 0002 §4.14).
+- Every pull request in a backend: facts validate against the IR schema and the goldens match (§6.6, ADR 21 §4.14).
 - The SDK: its existing facade tests pass unmodified at step 5.
 
 ## 12. Risks

@@ -5,10 +5,10 @@ decision-makers: [Rahul Krishna]
 consulted: []
 informed: []
 scope: External API recovery and effect models across language backends
-related: [0001-shared-core-with-thin-language-backends.md, 0002-facts-ir.md, codeanalyzer-java/0001-no-build-analysis-with-supplied-bytecode.md, codeanalyzer-python/0001-resolver-ladder-syntactic-before-inference.md]
+related: [20-shared-core-with-thin-language-backends.md, 21-facts-ir.md, codeanalyzer-java/0001-no-build-analysis-with-supplied-bytecode.md, codeanalyzer-python/0001-resolver-ladder-syntactic-before-inference.md]
 ---
 
-# 0003: External Library Model (ELM)
+# 30: External Library Model (ELM)
 
 ## 1. Context
 
@@ -86,7 +86,7 @@ For a backend without a suitable oracle, this proposal permits the core to inter
 
 Each effect needs an execution owner: the backend oracle or the core. Coverage must identify effects already applied by an oracle. Edge deduplication alone cannot prevent duplicate allocations or inconsistent callback modeling.
 
-This extends the input contract described in [ADR 0002](0002-facts-ir.md). The current contract has closed record kinds and provenance vocabularies. Its `SummaryToken` identifies an abstract object. It does not encode an effect transfer.
+This extends the input contract described in [ADR 21](21-facts-ir.md). The current contract has closed record kinds and provenance vocabularies. Its `SummaryToken` identifies an abstract object. It does not encode an effect transfer.
 
 Before implementation, the facts IR needs typed representations for effects, coverage, model identity, and attribution. ELM effect summaries differ from graph `summary` edges produced by the core. This draft does not add undocumented fields or opaque payloads to the current IR.
 
@@ -378,7 +378,7 @@ A cache entry needs application evidence scope, dependency identity when known, 
 
 Unknown versions remain unknown. Application-derived constraints cannot silently become a universal library contract for other projects. Generated evidence retains its derivation after serialization and reload.
 
-This proposal requires no dependency installation, target execution, or target build for model discovery. Supplied artifacts and declarations remain useful inputs. Existing materialization policies require separate reconciliation with [ADR 0001](0001-shared-core-with-thin-language-backends.md).
+This proposal requires no dependency installation, target execution, or target build for model discovery. Supplied artifacts and declarations remain useful inputs. Existing materialization policies require separate reconciliation with [ADR 20](20-shared-core-with-thin-language-backends.md).
 
 ## 3. Consequences
 

@@ -4,8 +4,8 @@ date: 2026-10-15
 decision-makers: [Rahul Krishna]
 consulted: [CLDK maintainers]
 informed: [codeanalyzer-python contributors]
-scope: codeanalyzer-python L1 and L2; the inference-oracle seam ADR codeanalyzer/0001 assumes every backend with an engine will have
-related: [../0001-shared-core-with-thin-language-backends.md]
+scope: codeanalyzer-python L1 and L2; the inference-oracle seam ADR codeanalyzer/20 assumes every backend with an engine will have
+related: [../20-shared-core-with-thin-language-backends.md]
 ---
 
 # 0001: Resolve syntactically first, infer with Jedi only for the leftovers
@@ -118,7 +118,7 @@ Each measurement uses the workload that the 1.6.0 memory work used, full Odoo 20
 
 ## 9. References
 
-- `../0001-shared-core-with-thin-language-backends.md`, sections 5.3 and 7
+- `../20-shared-core-with-thin-language-backends.md`, sections 5.3 and 7
 - Python backend releases 1.6.0 (level-4 memory cut) and 1.6.1 (streamed artifacts and nodes)
 - Python backend defects: output depends on the interpreter; the defuse linker over-links unresolved method calls
 - The Python backend's refactor proposal

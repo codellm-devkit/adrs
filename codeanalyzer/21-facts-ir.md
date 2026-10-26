@@ -1,14 +1,14 @@
 ---
-status: proposed            # draft; the record catalog is to be refined against real output in step 0 of ADR 0001
+status: proposed            # draft; the record catalog is to be refined against real output in step 0 of ADR 20
 date: 2026-10-15
 decision-makers: [Rahul Krishna]
 consulted: [CLDK maintainers, via the RFC]
 informed: [codellm-devkit contributors]
-scope: the backend-to-core contract of ADR 0001 §5.2; every codeanalyzer-* language backend; the codeanalyzer core
+scope: the backend-to-core contract of ADR 20 §5.2; every codeanalyzer-* language backend; the codeanalyzer core
 derived-from: field inventories of codeanalyzer-python 1.6.1, codeanalyzer-typescript 1.6.4, codeanalyzer-java 3.3.4, taken 2026-10-14
 ---
 
-# 0002: The facts IR between language backends and the core
+# 21: The facts IR between language backends and the core
 
 ## 1. Summary
 
@@ -59,7 +59,7 @@ In each row, a consumer today must know which backend produced the file. The IR 
 
 MessagePack. Each record is one map with a string `t` key that names the record kind.
 
-Alternatives were weighed on 2026-10-15 and rejected for this version. Serialization is not a bottleneck anywhere in the pipeline. Every backend produces facts orders of magnitude slower than any codec parses them. So the choice is about typing, generated writers, and debuggability. Protobuf is the strongest alternative. The IR schema would be a `.proto`, and `protoc` would generate every backend's writer. This fits D2. It was set aside for now for two reasons. Proto3 has no required fields and its enums are integers, so the core would validate required-ness anyway. It also adds a toolchain to each backend. CBOR is the IETF counterpart of MessagePack. It has less TypeScript library coverage. Arrow IPC has the highest throughput. Its shape is wrong for nested records, and it brings a heavy Python dependency. JSON-RPC, as MCP and LSP use it, is a request-and-response protocol with a per-message envelope. It is not a bulk stream. Its place is the control plane in §3.6, not the data. The decision can be revisited at step 0 of ADR 0001 if the generated-writer work is larger than expected. A writer writes records as a length-prefixed sequence (`uint32` big-endian byte length, then the MessagePack bytes). This lets a reader skip a record it does not understand, and lets a writer stream without buffering. A backend writes to stdout when the core spawns it. It writes to a file when run with `--facts-out`. `canal facts dump` renders a stream as NDJSON for inspection. This keeps the debugging convenience of JSON without its size cost on every run.
+Alternatives were weighed on 2026-10-15 and rejected for this version. Serialization is not a bottleneck anywhere in the pipeline. Every backend produces facts orders of magnitude slower than any codec parses them. So the choice is about typing, generated writers, and debuggability. Protobuf is the strongest alternative. The IR schema would be a `.proto`, and `protoc` would generate every backend's writer. This fits D2. It was set aside for now for two reasons. Proto3 has no required fields and its enums are integers, so the core would validate required-ness anyway. It also adds a toolchain to each backend. CBOR is the IETF counterpart of MessagePack. It has less TypeScript library coverage. Arrow IPC has the highest throughput. Its shape is wrong for nested records, and it brings a heavy Python dependency. JSON-RPC, as MCP and LSP use it, is a request-and-response protocol with a per-message envelope. It is not a bulk stream. Its place is the control plane in §3.6, not the data. The decision can be revisited at step 0 of ADR 20 if the generated-writer work is larger than expected. A writer writes records as a length-prefixed sequence (`uint32` big-endian byte length, then the MessagePack bytes). This lets a reader skip a record it does not understand, and lets a writer stream without buffering. A backend writes to stdout when the core spawns it. It writes to a file when run with `--facts-out`. `canal facts dump` renders a stream as NDJSON for inspection. This keeps the debugging convenience of JSON without its size cost on every run.
 
 ### 3.2 Header and trailer
 
@@ -67,7 +67,7 @@ The first record is `header`. The last is `trailer`. The core refuses, by name, 
 
 | `t` | fields |
 | --- | --- |
-| `header` | `ir_version: u32`, `backend: {name, version}`, `languages: [str]` (from `python`, `typescript`, `javascript`, `java`, `go`, `c`, `cpp`. A backend may serve several. `codeanalyzer-typescript` declares both `typescript` and `javascript`), `max_level: u8` (the level the backend can serve on this machine), `module: {name, manifest}` (the declared build unit, ADR 0001 §6.2), `root: str` |
+| `header` | `ir_version: u32`, `backend: {name, version}`, `languages: [str]` (from `python`, `typescript`, `javascript`, `java`, `go`, `c`, `cpp`. A backend may serve several. `codeanalyzer-typescript` declares both `typescript` and `javascript`), `max_level: u8` (the level the backend can serve on this machine), `module: {name, manifest}` (the declared build unit, ADR 20 §6.2), `root: str` |
 | `trailer` | `records: u64`, `files: u32`, `diagnostics: {error: u32, warning: u32}` |
 
 ```
@@ -662,7 +662,7 @@ signal = {
 | `file?`, `span?` | |
 | `message` | str |
 
-Diagnostics travel in the stream, not on stderr, so they arrive in the output document where ADR 0001 §7 puts them.
+Diagnostics travel in the stream, not on stderr, so they arrive in the output document where ADR 20 §7 puts them.
 
 
 ```
@@ -711,7 +711,7 @@ The core computes all of the following, so that each is computed once:
 - entrypoints and the entrypoint report (D12)
 - `content_hash`, the envelope, `max_level`, both projections
 
-The IR also deliberately drops three things that the inventories found on the wire today. The first is Python's `ast_kind` on call arguments. The second is Python's absolute `path` and mtime `last_modified` on callables (machine-dependent, ADR 0001 §7). The third is TypeScript's `call_graph` edges whose source is a module id. The core gives module-scope calls a synthesized `<module>` callable instead.
+The IR also deliberately drops three things that the inventories found on the wire today. The first is Python's `ast_kind` on call arguments. The second is Python's absolute `path` and mtime `last_modified` on callables (machine-dependent, ADR 20 §7). The third is TypeScript's `call_graph` edges whose source is a module id. The core gives module-scope calls a synthesized `<module>` callable instead.
 
 ## 6. Vocabularies
 
@@ -730,7 +730,7 @@ The schema closes these vocabularies. A backend that needs a new value opens a p
 | `dependency.prov` | `declared lockfile installed-metadata` |
 | `artifact.format`, `artifact.roles`, `config_key.namespace` | § 4.1, § 4.11 |
 
-The `header` names the backend and its version, so the engine name is not lost. ADR 0001's envelope carries `core: {version, ir}` beside `analyzer`.
+The `header` names the backend and its version, so the engine name is not lost. ADR 20's envelope carries `core: {version, ir}` beside `analyzer`.
 
 ## 7. Consequences
 
@@ -744,7 +744,7 @@ The `header` names the backend and its version, so the engine name is not lost. 
 
 - The schema file in `codeanalyzer/schema/facts/` is the only hand-written artifact. It generates every writer and the core's reader. A generated writer that no longer matches the file fails its build (§4.14).
 - The core rejects any record that does not match its generated type, any forward reference, any unresolved reference, and any violated invariant. Each rejection carries a diagnostic that names the record (§4.14).
-- Step 0 of ADR 0001 validates the catalog in §4 against real backend output. It must be possible to rebuild each of the three backends' current `analysis.json` from a facts stream that validates against this schema.
+- Step 0 of ADR 20 validates the catalog in §4 against real backend output. It must be possible to rebuild each of the three backends' current `analysis.json` from a facts stream that validates against this schema.
 - The vocabularies in §6 are closed. A value outside them is a validation error. So divergence appears as a failed pull request, not as a stale document.
 
 ## 9. Open questions for step 0
@@ -757,7 +757,7 @@ The `header` names the backend and its version, so the engine name is not lost. 
 
 ## 10. References
 
-- `0001-shared-core-with-thin-language-backends.md`, §5.2, §6.2, §7
+- `20-shared-core-with-thin-language-backends.md`, §5.2, §6.2, §7
 - the three inventories, taken 2026-10-14 against `codeanalyzer-python` 1.6.1, `codeanalyzer-typescript` 1.6.4, `codeanalyzer-java` 3.3.4
 - `cldk-devtools/skills/designing-cldk-changes/references/canonical-schema.md`, the keystone this IR feeds
 - the TypeScript backend's UTF-16 offset defect and body-span request; the module-segment and `heap_flow` specs under `.github/docs/design/specs/`

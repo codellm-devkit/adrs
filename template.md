@@ -1,12 +1,12 @@
 ---
-status: proposed            # proposed | accepted | rejected | deprecated | superseded by ADR-NNNN
+status: proposed            # proposed | accepted | rejected | deprecated | superseded by ADR-<prefix>
 date: YYYY-MM-DD            # when the decision was last updated
 decision-makers: []         # everyone involved in the decision
 consulted: []               # subject-matter experts, two-way communication
 informed: []                # kept up to date, one-way communication
 ---
 
-# NNNN: Title
+# PREFIX: Title
 
 ## Context
 
