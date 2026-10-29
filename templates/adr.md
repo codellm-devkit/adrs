@@ -4,6 +4,7 @@ date: YYYY-MM-DD            # when the decision was last updated
 decision-makers: []         # everyone involved in the decision
 consulted: []               # subject-matter experts, two-way communication
 informed: []                # kept up to date, one-way communication
+related-rfcs: []            # paths relative to the ADR after copying
 ---
 
 # PREFIX: Title

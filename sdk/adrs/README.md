@@ -2,8 +2,8 @@
 
 Architecture Decision Records for the **sdk** component.
 
-Use the shared [filename and ordering rules](../README.md#adr-filenames-and-ordering).
-Copy the [template](../template.md) as a starting point.
+Use the shared [filename and ordering rules](../../README.md#filenames-and-ordering).
+Copy the [ADR template](../../templates/adr.md) as a starting point.
 
 ## Index
 
